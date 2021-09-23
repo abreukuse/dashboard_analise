@@ -40,12 +40,13 @@ def opcoes_dropdown(df):
 	opcoes = df.select_dtypes('object').columns
 	return list(opcoes)
 
+@st.cache(show_spinner=False)
 def ajustes_tabela(tabela):
     table = tabela.iloc[:-1]
 
     return table.reset_index()
 
-
+@st.cache(show_spinner=False)
 def tabela_formato_longo(tabela, variavel, cruzamento):
     table = pd.melt(tabela, id_vars=[variavel], 
                     value_vars=tabela.columns[2:],
@@ -53,7 +54,6 @@ def tabela_formato_longo(tabela, variavel, cruzamento):
                     value_name='Valores'
                     )
     return table
-
 
 def grafico_facetado(tabela, variavel, cruzamento):
 

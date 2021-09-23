@@ -3,6 +3,7 @@ import numpy as np
 from typing import Union, List
 from collections import Counter
 from functools import reduce
+from iteround import saferound
 
 
 def tabela_contingencia(dados: pd.DataFrame, 
@@ -48,24 +49,18 @@ def tabela_contingencia(dados: pd.DataFrame,
                                  values=dados['peso'],
                                  aggfunc='sum',
                                  normalize=normalizar)
-            
-            # tabela = tabela.drop(columns='All')
 
             tabela = tabela.fillna(0)
-            tabela = tabela.append(tabela.sum().rename('All'))
-            tabela = np.round(tabela*multiplicar, 0)
 
+            for column in tabela.columns:
+                tabela[column] = saferound(tabela[column].values*multiplicar, 0)
+
+            tabela = tabela.append(tabela.sum().rename('All'))
             dataframes.append(tabela)
     
         # Juntar as tabela criadas
         final = reduce(lambda left, right: left.join(right), dataframes)
         final = final.rename({'All': 'Total'}, axis=0)
-
-        if percentage:
-        # Calcular as porcentagens e arredondar o resultado
-            contagem_total = final.loc['Total', final.columns]
-            for total, coluna in zip(contagem_total, final.columns):
-                final[coluna] = np.round((final[coluna] / total)*100, 0)
 
         return final
     
@@ -86,15 +81,18 @@ def criar_tabela(dados: pd.DataFrame,
     Retorna um dataframe pandas
     """
     contagem = dados.groupby(variavel)['peso'].sum()
-    contagem = contagem.append(pd.Series(np.sum(contagem), index=pd.Index(['Total'])))
 
     porcentagem = None
     if mostrar_porcentagem:
-        total = contagem[contagem.index=='Total'].values[0]
-        porcentagem = np.round((contagem/total)*100, 0)
+        total = np.sum(contagem)
+        porcentagem = pd.Series(saferound((contagem/total)*100, 0), index=contagem.index)
+
+        porcentagem = porcentagem.append(pd.Series(np.sum(porcentagem), index=pd.Index(['Total'])))
 
     else:
-        contagem = np.round(contagem, 0)
+        contagem = pd.Series(saferound(contagem, 0), index=contagem.index)
+        contagem = contagem.append(pd.Series(np.sum(contagem), index=pd.Index(['Total'])))
+        
 
     valores = porcentagem if mostrar_porcentagem == True else contagem
     dataframe = pd.DataFrame(valores, columns=['Total'])
