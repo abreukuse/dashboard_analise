@@ -4,6 +4,7 @@ from typing import Union, List
 from collections import Counter
 from functools import reduce
 
+
 def tabela_contingencia(dados: pd.DataFrame, 
                         linhas: Union[str, List[str]], 
                         colunas: Union[str, List[str]],
@@ -14,6 +15,7 @@ def tabela_contingencia(dados: pd.DataFrame,
     Parâmetros
     dados: Pandas dataframe.
     linhas, colunas: String para uma variável e lista para mais de uma variável. 
+    percentage: True para mostrar o resultado em porcentagem
 
     Retorna um dataframe pandas com a tabela de contingência
     """
@@ -35,14 +37,23 @@ def tabela_contingencia(dados: pd.DataFrame,
         linhas = [dados[item] for item in linhas]
         colunas = [dados[item] for item in colunas]
 
+        normalizar = 'columns' if percentage else False
+        multiplicar = 100 if percentage else 1
+
         # Criar uma tabela de cruzamento para cada "coluna" e armazenar na lista dataframes
         dataframes = []
         for coluna in colunas:
             tabela = pd.crosstab(index=linhas, 
                                  columns=coluna, 
-                                 margins=True)
+                                 values=dados['peso'],
+                                 aggfunc='sum',
+                                 normalize=normalizar)
             
-            tabela = tabela.drop(columns='All')
+            # tabela = tabela.drop(columns='All')
+
+            tabela = tabela.fillna(0)
+            tabela = tabela.append(tabela.sum().rename('All'))
+            tabela = np.round(tabela*multiplicar, 0)
 
             dataframes.append(tabela)
     
@@ -63,14 +74,27 @@ def criar_tabela(dados: pd.DataFrame,
                  variavel: str, 
                  cruzamento: List[str], 
                  mostrar_porcentagem: bool = True) -> pd.DataFrame:
-                 
-    contagem = dados[variavel].value_counts()
+     
+    """
+    Cria a tabela cruzada junto com a coluna 'Total'
+    ----------------------------
+    Parâmetros
+    dados: Pandas dataframe.
+    variavel, cruzamento: String para uma variável e lista para mais de uma variável. 
+    mostrar_porcentagem: True para mostrar o resultado em porcentagem
+
+    Retorna um dataframe pandas
+    """
+    contagem = dados.groupby(variavel)['peso'].sum()
     contagem = contagem.append(pd.Series(np.sum(contagem), index=pd.Index(['Total'])))
 
     porcentagem = None
     if mostrar_porcentagem:
         total = contagem[contagem.index=='Total'].values[0]
         porcentagem = np.round((contagem/total)*100, 0)
+
+    else:
+        contagem = np.round(contagem, 0)
 
     valores = porcentagem if mostrar_porcentagem == True else contagem
     dataframe = pd.DataFrame(valores, columns=['Total'])

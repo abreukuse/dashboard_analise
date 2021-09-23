@@ -14,11 +14,8 @@ plotnine.theme_set(theme_bw())
 import warnings
 warnings.filterwarnings("ignore")
 
-from PIL import Image
-
 st.set_page_config(layout='wide')
 
-# imagem = Image.open('dashboard/quaest.png')
 st.sidebar.image('dashboard/quaest.jpg', width=None)
 st.header('Amostra dos dados')
 
@@ -31,13 +28,17 @@ def load_data():
 							sheet_name='dados', 
 							engine='openpyxl')
 
-		return df.select_dtypes('object')
+		return df
 	else:
 		return pd.DataFrame()
 
 DATAFRAME = load_data()
 st.dataframe(DATAFRAME.head())
 
+@st.cache(show_spinner=False)
+def opcoes_dropdown(df):
+	opcoes = df.select_dtypes('object').columns
+	return list(opcoes)
 
 def ajustes_tabela(tabela):
     table = tabela.iloc[:-1]
@@ -60,12 +61,18 @@ def grafico_facetado(tabela, variavel, cruzamento):
     tabela = tabela_formato_longo(tabela, variavel, cruzamento)
 
     n_cols = len(tabela[cruzamento].unique())
+    width = 3*n_cols
+    hight = n_cols
+
+    if width > 25:
+    	width = 25
+
     figura = (
                 ggplot(tabela, aes(x=variavel, y='Valores'))
                 + geom_bar(stat='identity')
                 + facet_wrap(f'~{cruzamento}', ncol=n_cols)
                 + coord_flip()
-                + theme(figure_size=(3*n_cols, n_cols), 
+                + theme(figure_size=(width, hight), 
                         axis_title_x=element_blank(),
                         axis_title_y=element_blank(),
                         axis_ticks=element_blank())
@@ -76,10 +83,10 @@ def grafico_facetado(tabela, variavel, cruzamento):
 
 
 variavel = st.sidebar.selectbox('Selecionar variável', 
-							    options=[''] + list(DATAFRAME.columns))
+							    options=[''] + opcoes_dropdown(DATAFRAME))
 
 cruzamento = st.sidebar.selectbox('Selecionar o cruzamento', 
-							      options=[''] + list(DATAFRAME.columns))
+							      options=[''] + opcoes_dropdown(DATAFRAME))
 
 def tabela_cruzada():
 	if variavel and cruzamento:
