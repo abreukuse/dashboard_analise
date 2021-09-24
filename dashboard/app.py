@@ -5,7 +5,8 @@ from tabelas.tabela_cruzamentos import criar_tabela
 from plotnine import (ggplot, aes, facet_wrap, 
                       geom_bar, coord_flip,
                       theme, geom_text, element_blank, 
-                      after_stat)
+                      after_stat, element_text, element_rect, 
+                      position_dodge)
 
 import plotnine
 from plotnine.themes import theme_bw
@@ -55,6 +56,52 @@ def tabela_formato_longo(tabela, variavel, cruzamento):
                     )
     return table
 
+
+def grafico_barra(tabela, variavel):
+
+	# Pegar o tamanho da maior string para ajustar as labels
+    maior_label = max([len(longer) 
+					   for longer in tabela.index 
+					   if '\n' not in longer])
+
+    tabela = ajustes_tabela(tabela)
+
+    figura = (
+                ggplot(tabela, aes(x=variavel, y='Total'))
+
+                + geom_bar(stat='identity', fill='#1fa8a9', width=0.4)
+
+                + coord_flip()
+                
+                + theme(
+                    axis_ticks = element_blank(),
+                    axis_title_x = element_blank(),
+                    axis_title_y = element_blank(),
+                    axis_text_x = element_blank(),
+                    axis_text_y = element_text(
+                                               ha='center', 
+                                               size=10, 
+                                               margin={'r':maior_label*2}
+                                               ),
+                    panel_border = element_blank(),
+
+                )
+
+                + geom_text(
+                    aes(label='Total'),
+                    position=position_dodge(width=2),
+                    color='black',
+                    format_string='{}%',
+                    nudge_y=1.7,
+                    size=13
+
+                )
+                
+            );
+
+    return figura
+
+
 def grafico_facetado(tabela, variavel, cruzamento):
 
     tabela = ajustes_tabela(tabela)
@@ -69,17 +116,22 @@ def grafico_facetado(tabela, variavel, cruzamento):
 
     figura = (
                 ggplot(tabela, aes(x=variavel, y='Valores'))
-                + geom_bar(stat='identity')
+
+                + geom_bar(stat='identity', fill='#1fa8a9')
+
                 + facet_wrap(f'~{cruzamento}', ncol=n_cols)
+
                 + coord_flip()
-                + theme(figure_size=(width, hight), 
+
+                + theme(
+                		figure_size=(width, hight), 
                         axis_title_x=element_blank(),
                         axis_title_y=element_blank(),
-                        axis_ticks=element_blank())
+                        axis_ticks=element_blank()
+                        )
             )
     
     return figura
-
 
 
 variavel = st.sidebar.selectbox('Selecionar variável', 
@@ -87,6 +139,7 @@ variavel = st.sidebar.selectbox('Selecionar variável',
 
 cruzamento = st.sidebar.selectbox('Selecionar o cruzamento', 
 							      options=[''] + opcoes_dropdown(DATAFRAME))
+
 
 def tabela_cruzada():
 	if variavel and cruzamento:
@@ -100,13 +153,20 @@ def tabela_cruzada():
 		st.header('\n\nTabela cruzada')
 		st.dataframe(tabela)
 
-		return tabela
+		return tabela.astype('int32')
 
 tabela = tabela_cruzada()
 
 if tabela is not None:
-	filePath = 'dashboard/plot.png'
-	st.header('Gráfico facetado')
-	plot = grafico_facetado(tabela, variavel, cruzamento)
-	plot.save(filename=filePath)
-	st.image(filePath, width=None)
+	path_plot_barras = 'dashboard/plot_barras.png'
+	st.header(f'{variavel}')
+	plot_barras = grafico_barra(tabela, variavel)
+	plot_barras.save(filename=path_plot_barras)
+	st.image(path_plot_barras, width=None)
+
+
+	path_plot_facetado = 'dashboard/plot_facetado.png'
+	st.header(f'{variavel} | {cruzamento}')
+	plot_facetado = grafico_facetado(tabela, variavel, cruzamento)
+	plot_facetado.save(filename=path_plot_facetado)
+	st.image(path_plot_facetado, width=None)
