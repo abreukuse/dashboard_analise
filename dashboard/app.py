@@ -57,23 +57,32 @@ def tabela_formato_longo(tabela, variavel, cruzamento):
     return table
 
 
-def grafico_barra(tabela, variavel):
+def grafico_barra(tabela, variavel, mostrar_porcentagem):
 
 	# Pegar o tamanho da maior string para ajustar as labels
     maior_label = max([len(longer) 
 					   for longer in tabela.index 
 					   if '\n' not in longer])
 
+    n_cols = len(tabela.columns[1:])
+    width = 3*n_cols
+    hight = n_cols
+
+    if width > 25: width = 25
+
     tabela = ajustes_tabela(tabela)
+
+    format_string = '{}%' if mostrar_porcentagem else '{}'
 
     figura = (
                 ggplot(tabela, aes(x=variavel, y='Total'))
 
-                + geom_bar(stat='identity', fill='#1fa8a9', width=0.4)
+                + geom_bar(stat='identity', fill='#1fa8a9', width=0.4, alpha=0.85)
 
                 + coord_flip()
                 
                 + theme(
+                    figure_size=(width, hight),
                     axis_ticks = element_blank(),
                     axis_title_x = element_blank(),
                     axis_title_y = element_blank(),
@@ -91,7 +100,7 @@ def grafico_barra(tabela, variavel):
                     aes(label='Total'),
                     position=position_dodge(width=2),
                     color='black',
-                    format_string='{}%',
+                    format_string=format_string,
                     nudge_y=1.7,
                     size=13
 
@@ -102,21 +111,22 @@ def grafico_barra(tabela, variavel):
     return figura
 
 
-def grafico_facetado(tabela, variavel, cruzamento):
+def grafico_facetado(tabela, variavel, cruzamento, mostrar_porcentagem):
 
     maior_label = max([len(longer) 
 					   for longer in tabela.index 
 					   if '\n' not in longer])
 
-    tabela = ajustes_tabela(tabela)
-    tabela = tabela_formato_longo(tabela, variavel, cruzamento)
-
-    n_cols = len(tabela[cruzamento].unique())
+    n_cols = len(tabela.columns[1:])
     width = 3*n_cols
     hight = n_cols
 
-    if width > 25:
-    	width = 25
+    if width > 25: width = 25
+
+    tabela = ajustes_tabela(tabela)
+    tabela = tabela_formato_longo(tabela, variavel, cruzamento)
+
+    format_string = '{}%' if mostrar_porcentagem else '{}'
 
     figura = (
                 ggplot(tabela, aes(x=variavel, y='Valores'))
@@ -137,15 +147,14 @@ def grafico_facetado(tabela, variavel, cruzamento):
                                                     ha='center', 
                                                     size=10, 
                                                     margin={'r':maior_label*3}
-                                                ), 
-                        # panel_border = element_blank()            
+                                                ),            
                         )
                 
                 + geom_text(
                     aes(label='Valores'),
                     position=position_dodge(width=2),
                     color='black',
-                    format_string='{}%',
+                    format_string=format_string,
                     nudge_y=2.5,
                     size=10
 
@@ -153,7 +162,6 @@ def grafico_facetado(tabela, variavel, cruzamento):
             )
     
     return figura
-
 
 variavel = st.sidebar.selectbox('Selecionar variável', 
 							    options=[''] + opcoes_dropdown(DATAFRAME))
@@ -163,31 +171,43 @@ cruzamento = st.sidebar.selectbox('Selecionar o cruzamento',
 
 
 def tabela_cruzada():
+	# if variavel and cruzamento:
+	# 	mostrar_porcentagem = st.sidebar.checkbox('Porcentagem', 
+	# 											  value=True)
+	tabela = criar_tabela(DATAFRAME,
+						  variavel=variavel,
+						  cruzamento=cruzamento,
+						  mostrar_porcentagem=mostrar_porcentagem)
+
+	st.header('\n\nTabela cruzada')
+	st.dataframe(tabela)
+
+	return tabela.astype('int32')
+
+if __name__ == '__main__':
 	if variavel and cruzamento:
 		mostrar_porcentagem = st.sidebar.checkbox('Porcentagem', 
 												  value=True)
-		tabela = criar_tabela(DATAFRAME,
-							  variavel=variavel,
-							  cruzamento=cruzamento,
-							  mostrar_porcentagem=mostrar_porcentagem)
 
-		st.header('\n\nTabela cruzada')
-		st.dataframe(tabela)
+		tabela = tabela_cruzada()
 
-		return tabela.astype('int32')
-
-tabela = tabela_cruzada()
-
-if tabela is not None:
-	path_plot_barras = 'dashboard/plot_barras.png'
-	st.header(f'{variavel}')
-	plot_barras = grafico_barra(tabela, variavel)
-	plot_barras.save(filename=path_plot_barras)
-	st.image(path_plot_barras, width=None)
+		if tabela is not None:
+			path_plot_barras = 'dashboard/plot_barras.png'
+			st.header(f'{variavel}')
+			plot_barras = grafico_barra(tabela, 
+										variavel, 
+										mostrar_porcentagem)
+			
+			plot_barras.save(filename=path_plot_barras)
+			st.image(path_plot_barras, width=None)
 
 
-	path_plot_facetado = 'dashboard/plot_facetado.png'
-	st.header(f'{variavel} | {cruzamento}')
-	plot_facetado = grafico_facetado(tabela, variavel, cruzamento)
-	plot_facetado.save(filename=path_plot_facetado)
-	st.image(path_plot_facetado, width=None)
+			path_plot_facetado = 'dashboard/plot_facetado.png'
+			st.header(f'{variavel} | {cruzamento}')
+			plot_facetado = grafico_facetado(tabela, 
+											 variavel, 
+											 cruzamento, 
+											 mostrar_porcentagem)
+
+			plot_facetado.save(filename=path_plot_facetado)
+			st.image(path_plot_facetado, width=None)
