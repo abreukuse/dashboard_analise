@@ -104,6 +104,10 @@ def grafico_barra(tabela, variavel):
 
 def grafico_facetado(tabela, variavel, cruzamento):
 
+    maior_label = max([len(longer) 
+					   for longer in tabela.index 
+					   if '\n' not in longer])
+
     tabela = ajustes_tabela(tabela)
     tabela = tabela_formato_longo(tabela, variavel, cruzamento)
 
@@ -117,7 +121,7 @@ def grafico_facetado(tabela, variavel, cruzamento):
     figura = (
                 ggplot(tabela, aes(x=variavel, y='Valores'))
 
-                + geom_bar(stat='identity', fill='#1fa8a9')
+                + geom_bar(stat='identity', fill='#1fa8a9', width=0.4, alpha=0.85)
 
                 + facet_wrap(f'~{cruzamento}', ncol=n_cols)
 
@@ -125,10 +129,27 @@ def grafico_facetado(tabela, variavel, cruzamento):
 
                 + theme(
                 		figure_size=(width, hight), 
+                        axis_ticks=element_blank(),
                         axis_title_x=element_blank(),
                         axis_title_y=element_blank(),
-                        axis_ticks=element_blank()
+                        axis_text_x = element_blank(),
+                        axis_text_y = element_text(
+                                                    ha='center', 
+                                                    size=10, 
+                                                    margin={'r':maior_label*3}
+                                                ), 
+                        # panel_border = element_blank()            
                         )
+                
+                + geom_text(
+                    aes(label='Valores'),
+                    position=position_dodge(width=2),
+                    color='black',
+                    format_string='{}%',
+                    nudge_y=2.5,
+                    size=10
+
+                )
             )
     
     return figura
