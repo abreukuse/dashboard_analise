@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from tabelas.tabela_cruzamentos import criar_tabela
+from funcoes.tabela_cruzamentos import criar_tabela
 from plotnine import (ggplot, aes, facet_wrap, 
 					  geom_bar, coord_flip,
 					  theme, geom_text, element_blank, 
