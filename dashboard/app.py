@@ -4,18 +4,6 @@ import numpy as np
 from funcoes.tabela_cruzamentos import criar_tabela
 from funcoes.graficos import grafico_barra, grafico_facetado
 
-# from plotnine import (ggplot, aes, facet_wrap, 
-# 					  geom_bar, coord_flip,
-# 					  theme, geom_text, element_blank, 
-# 					  after_stat, element_text, element_rect, 
-# 					  position_dodge, scale_x_discrete)
-
-# from iteround import saferound
-
-# import plotnine
-# from plotnine.themes import theme_bw
-# plotnine.theme_set(theme_bw())
-
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -90,7 +78,6 @@ if __name__ == '__main__':
 				tabela = tabela_cruzada(nova_ordem_indices, nova_ordem_colunas)
 				executar = False
 			else:
-				print('era pra vim aqui')
 				st.sidebar.write('Selecione todos os itens\nnas linhas e colunas')
 				executar = False
 
