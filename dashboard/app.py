@@ -63,52 +63,116 @@ def tabela_cruzada(ordem_indices=[], ordem_colunas=[]):
 
 if __name__ == '__main__':
 	if variavel and cruzamento:
-		mostrar_porcentagem = st.sidebar.checkbox('Porcentagem', 
-												  value=True)
+		if variavel == cruzamento:
+			st.write('Variável e cruzamento são iguais. Troque um dos dois.')
 
-		tabela = tabela_cruzada()
+		else:
+			mostrar_porcentagem = st.sidebar.checkbox('Porcentagem', 
+													  value=True)
 
-		indices = list(tabela.index[:-1])
-		nova_ordem_indices = st.sidebar.multiselect('Nova ordem das linhas', 
-													options=indices)
+			tabela = tabela_cruzada()
 
-		colunas = list(tabela.columns[1:])
-		nova_ordem_colunas = st.sidebar.multiselect('Nova ordem das colunas',
-													options=colunas)
+			indices = list(tabela.index[:-1])
+			nova_ordem_indices = st.sidebar.multiselect('Nova ordem das linhas', 
+														options=indices)
 
-	
-		if nova_ordem_indices or nova_ordem_colunas:
-			tabela = tabela_cruzada(nova_ordem_indices, nova_ordem_colunas)
+			colunas = list(tabela.columns[1:])
+			nova_ordem_colunas = st.sidebar.multiselect('Nova ordem das colunas',
+														options=colunas)
 
 		
-		st.header('\n\nTabela cruzada')
-		show_table = tabela.loc[tabela.index[:-1]].copy()
-		show_table = show_table.append(pd.Series(np.sum(show_table), name='Total'))
+			if nova_ordem_indices or nova_ordem_colunas:
+				tabela = tabela_cruzada(nova_ordem_indices, nova_ordem_colunas)
 
-		st.dataframe(show_table)
-
-		if tabela is not None:
-
-			# Gráfico de barras
-			path_plot_barras = 'dashboard/plot_barras.png'
-			st.header(f'{variavel}')
-			plot_barras = grafico_barra(tabela, 
-										variavel, 
-										mostrar_porcentagem)
 			
-			plot_barras.save(filename=path_plot_barras)
-			st.image(path_plot_barras, width=None)
+			st.header('\n\nTabela cruzada')
+			show_table = tabela.loc[tabela.index[:-1]].copy()
+			show_table = show_table.append(pd.Series(np.sum(show_table), name='Total'))
 
-			# Gráfico faetado
-			path_plot_facetado = 'dashboard/plot_facetado.png'
-			st.header(f'{variavel} | {cruzamento}')
-			plot_facetado = grafico_facetado(DATAFRAME,
-											 tabela, 
-											 variavel, 
-											 cruzamento, 
-											 mostrar_porcentagem)
+			st.dataframe(show_table)
 
-			plot_facetado.save(filename=path_plot_facetado)
-			st.image(path_plot_facetado, width=None)
+			if tabela is not None:
 
-		
+				n_cols = len(tabela.columns[1:])
+				largura_default = 3*n_cols
+				altura_default = n_cols
+
+				# Gráfico de barras
+				path_plot_barras = 'dashboard/plot_barras.png'
+				st.header(f'{variavel}')
+
+				bar_plot_container = st.beta_container()
+				col1_bar, col2_bar, empty = st.beta_columns([1,1,5])
+
+				largura_bar_plot = col1_bar.slider(label='Largura', 
+					min_value=1, 
+					max_value=15, 
+					value=largura_default, 
+					step=1,
+					key=1)
+
+				altura_bar_plot = col2_bar.slider(label='Altura', 
+					min_value=1, 
+					max_value=10, 
+					value=altura_default, 
+					step=1,
+					key=2)
+
+				plot_barras = grafico_barra(tabela, 
+											variavel, 
+											mostrar_porcentagem,
+											largura_bar_plot, 
+											altura_bar_plot)
+				
+				plot_barras.save(filename=path_plot_barras)
+				bar_plot_container.image(path_plot_barras, width=None)
+				
+
+				# Gráfico facetado
+				path_plot_facetado = 'dashboard/plot_facetado.png'
+				st.header(f'{variavel} | {cruzamento}')
+
+				facet_plot_container = st.beta_container()
+				col1_facet, col2_facet, empty = st.beta_columns([1,1,5])
+
+				largura_facet_plot = col1_facet.slider(label='Largura', 
+					min_value=1, 
+					max_value=15, 
+					value=largura_default, 
+					step=1,
+					key=3)
+
+				altura_facet_plot = col2_facet.slider(label='Altura', 
+					min_value=1, 
+					max_value=15, 
+					value=altura_default, 
+					step=1,
+					key=4)
+
+				nrow_default = 1
+				ncol_default = n_cols
+
+				nrow = col1_facet.number_input(label='Trazer paineis para baixo', 
+					value = nrow_default, 
+					step=1, 
+					min_value=1, 
+					max_value=len(colunas))
+				
+				ncol = ncol_default-nrow+1
+				
+				plot_facetado = grafico_facetado(DATAFRAME,
+												 tabela, 
+												 variavel, 
+												 cruzamento, 
+												 mostrar_porcentagem,
+												 largura_facet_plot,
+												 altura_facet_plot,
+												 nrow,
+												 ncol)
+
+				plot_facetado.save(filename=path_plot_facetado)
+				facet_plot_container.image(path_plot_facetado, width=None)
+
+				
+
+			

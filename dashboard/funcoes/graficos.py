@@ -5,7 +5,7 @@ from plotnine import (ggplot, aes, facet_wrap,
 					  geom_bar, coord_flip,
 					  theme, geom_text, element_blank, 
 					  after_stat, element_text, element_rect, 
-					  position_dodge, scale_x_discrete)
+					  position_dodge)
 
 from iteround import saferound
 
@@ -46,16 +46,20 @@ def calcular_base(dados, cruzamento):
 	return base
 
 
-def grafico_barra(tabela, variavel, mostrar_porcentagem):
+def grafico_barra(tabela, 
+	variavel, 
+	mostrar_porcentagem, 
+	width, 
+	hight):
 
 	# Pegar o tamanho da maior string para ajustar as labels
 	maior_label = max([len(longer) 
 					   for longer in tabela.index 
 					   if '\n' not in longer])
 
-	n_cols = len(tabela.columns[1:])
-	width = 3*n_cols
-	hight = n_cols
+	# n_cols = len(tabela.columns[1:])
+	# width = 3*n_cols
+	# hight = n_cols
 
 	if width > 25: width = 25
 
@@ -69,8 +73,6 @@ def grafico_barra(tabela, variavel, mostrar_porcentagem):
 				+ theme_bw(base_family='Montserrat')
 
 				+ geom_bar(stat='identity', fill='#1fa8a9', width=0.4, alpha=0.85)
-
-				# + scale_x_discrete(limits=tabela[variavel].to_list()[::-1])
 
 				+ coord_flip()
 				
@@ -104,15 +106,22 @@ def grafico_barra(tabela, variavel, mostrar_porcentagem):
 	return figura
 
 
-def grafico_facetado(banco_de_dados, tabela, variavel, cruzamento, mostrar_porcentagem):
+def grafico_facetado(banco_de_dados, 
+	tabela, variavel, 
+	cruzamento, 
+	mostrar_porcentagem, 
+	width, 
+	hight,
+	nrow,
+	ncol):
 
 	maior_label = max([len(longer) 
 					   for longer in tabela.index 
 					   if '\n' not in longer])
 
-	n_cols = len(tabela.columns[1:])
-	width = 3*n_cols
-	hight = n_cols
+	# n_cols = len(tabela.columns[1:])
+	# width = 3*n_cols
+	# hight = n_cols
 
 	if width > 25: width = 25
 
@@ -134,7 +143,7 @@ def grafico_facetado(banco_de_dados, tabela, variavel, cruzamento, mostrar_porce
 
 				+ geom_bar(stat='identity', fill='#1fa8a9', width=0.4, alpha=0.85)
 
-				+ facet_wrap(f'~{cruzamento} + Base', ncol=n_cols)
+				+ facet_wrap(f'~{cruzamento} + Base', nrow=nrow, ncol=ncol)
 
 				+ coord_flip()
 
