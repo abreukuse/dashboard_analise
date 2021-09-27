@@ -72,14 +72,9 @@ if __name__ == '__main__':
 		nova_ordem_colunas = st.sidebar.multiselect('Nova ordem das colunas',
 													options=colunas)
 
-		executar = st.sidebar.button('Executar')
-		if executar:
-			if (len(nova_ordem_indices) == len(indices)) and (len(nova_ordem_colunas) == len(colunas)):
-				tabela = tabela_cruzada(nova_ordem_indices, nova_ordem_colunas)
-				executar = False
-			else:
-				st.sidebar.write('Selecione todos os itens\nnas linhas e colunas')
-				executar = False
+	
+		if (len(nova_ordem_indices) == len(indices)) and (len(nova_ordem_colunas) == len(colunas)):
+			tabela = tabela_cruzada(nova_ordem_indices, nova_ordem_colunas)
 
 		
 		st.header('\n\nTabela cruzada')

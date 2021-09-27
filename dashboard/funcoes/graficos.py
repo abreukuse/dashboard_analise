@@ -14,7 +14,7 @@ from plotnine.themes import theme_bw
 plotnine.theme_set(theme_bw())
 
 
-@st.cache(show_spinner=False)
+# @st.cache(show_spinner=False)
 def ajustes_tabela(tabela, variavel):
     table = tabela.iloc[:-1]
     table = table.reset_index()
@@ -24,7 +24,7 @@ def ajustes_tabela(tabela, variavel):
     return table
 
 
-@st.cache(show_spinner=False)
+# @st.cache(show_spinner=False)
 def tabela_formato_longo(tabela, variavel, cruzamento):
 	table = pd.melt(tabela, id_vars=[variavel], 
 					value_vars=tabela.columns[2:],
@@ -34,7 +34,7 @@ def tabela_formato_longo(tabela, variavel, cruzamento):
 	return table
 
 
-@st.cache(show_spinner=False)
+# @st.cache(show_spinner=False)
 def calcular_base(dados, cruzamento):
 	parcial = dados.groupby(cruzamento)['peso'].sum()
 	total = np.sum(parcial)
