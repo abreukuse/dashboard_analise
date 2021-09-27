@@ -46,12 +46,16 @@ def tabela_cruzada(ordem_indices=[], ordem_colunas=[]):
 						  cruzamento=cruzamento,
 						  mostrar_porcentagem=mostrar_porcentagem)
 
-	indices = list(tabela.index[:-1])
-	colunas = list(tabela.columns[1:])
+	primeira_coluna = list(tabela.columns[:1])
+	ultimo_indice = list(tabela.index[-1:])
 
-	if (len(ordem_indices) == len(indices)) and (len(ordem_colunas) == len(colunas)):
-		primeira_coluna = list(tabela.columns[:1])
-		ultimo_indice = list(tabela.index[-1:])
+	if len(ordem_indices) != 0 and len(ordem_colunas) == 0:
+		tabela = tabela.loc[ordem_indices + ultimo_indice, :]
+
+	if len(ordem_indices) == 0 and len(ordem_colunas) != 0:
+		tabela = tabela.loc[:, primeira_coluna + ordem_colunas]
+
+	if ordem_indices and ordem_colunas:
 		tabela = tabela.loc[ordem_indices + ultimo_indice, primeira_coluna + ordem_colunas]
 
 	return tabela.astype('int32')
@@ -73,12 +77,15 @@ if __name__ == '__main__':
 													options=colunas)
 
 	
-		if (len(nova_ordem_indices) == len(indices)) and (len(nova_ordem_colunas) == len(colunas)):
+		if nova_ordem_indices or nova_ordem_colunas:
 			tabela = tabela_cruzada(nova_ordem_indices, nova_ordem_colunas)
 
 		
 		st.header('\n\nTabela cruzada')
-		st.dataframe(tabela)
+		show_table = tabela.loc[tabela.index[:-1]].copy()
+		show_table = show_table.append(pd.Series(np.sum(show_table), name='Total'))
+
+		st.dataframe(show_table)
 
 		if tabela is not None:
 

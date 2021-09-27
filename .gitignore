@@ -1,4 +1,4 @@
 .tox/*
 tox.ini
-dashboard/tabelas/__pycache__/*
+dashboard/funcoes/__pycache__/*
 dashboard/*.png
