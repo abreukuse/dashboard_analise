@@ -3,7 +3,7 @@ import numpy as np
 from typing import Union, List
 from collections import Counter
 from functools import reduce
-from iteround import saferound
+# from iteround import saferound
 
 
 def tabela_contingencia(dados: pd.DataFrame, 
@@ -53,7 +53,8 @@ def tabela_contingencia(dados: pd.DataFrame,
             tabela = tabela.fillna(0)
 
             for column in tabela.columns:
-                tabela[column] = saferound(tabela[column].values*multiplicar, 0)
+                # tabela[column] = saferound(tabela[column].values*multiplicar, 0)
+                tabela[column] = np.round(tabela[column].values*multiplicar, 0)
 
             tabela = tabela.append(tabela.sum().rename('All'))
             dataframes.append(tabela)
@@ -85,12 +86,14 @@ def criar_tabela(dados: pd.DataFrame,
     porcentagem = None
     if mostrar_porcentagem:
         total = np.sum(contagem)
-        porcentagem = pd.Series(saferound((contagem/total)*100, 0), index=contagem.index)
+        # porcentagem = pd.Series(saferound((contagem/total)*100, 0), index=contagem.index)
+        porcentagem = pd.Series(np.round((contagem/total)*100, 0), index=contagem.index)
 
         porcentagem = porcentagem.append(pd.Series(np.sum(porcentagem), index=pd.Index(['Total'])))
 
     else:
-        contagem = pd.Series(saferound(contagem, 0), index=contagem.index)
+        # contagem = pd.Series(saferound(contagem, 0), index=contagem.index)
+        contagem = pd.Series(np.round(contagem, 0), index=contagem.index)
         contagem = contagem.append(pd.Series(np.sum(contagem), index=pd.Index(['Total'])))
         
 
