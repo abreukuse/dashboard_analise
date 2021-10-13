@@ -94,8 +94,8 @@ if __name__ == '__main__':
 			if tabela is not None:
 
 				n_cols = len(tabela.columns[1:])
-				largura_default = 3*n_cols
-				altura_default = n_cols
+				largura_default = 10
+				altura_default = 5
 
 				# Gráfico de barras
 				path_plot_barras = 'dashboard/plot_barras.png'
@@ -106,14 +106,14 @@ if __name__ == '__main__':
 
 				largura_bar_plot = col1_bar.slider(label='Largura', 
 					min_value=1, 
-					max_value=15, 
+					max_value=20, 
 					value=largura_default, 
 					step=1,
 					key=1)
 
 				altura_bar_plot = col2_bar.slider(label='Altura', 
 					min_value=1, 
-					max_value=10, 
+					max_value=20, 
 					value=altura_default, 
 					step=1,
 					key=2)
@@ -137,14 +137,14 @@ if __name__ == '__main__':
 
 				largura_facet_plot = col1_facet.slider(label='Largura', 
 					min_value=1, 
-					max_value=15, 
+					max_value=20, 
 					value=largura_default, 
 					step=1,
 					key=3)
 
 				altura_facet_plot = col2_facet.slider(label='Altura', 
 					min_value=1, 
-					max_value=15, 
+					max_value=20, 
 					value=altura_default, 
 					step=1,
 					key=4)

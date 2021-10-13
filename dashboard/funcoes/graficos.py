@@ -62,6 +62,7 @@ def grafico_barra(tabela,
 	# hight = n_cols
 
 	if width > 25: width = 25
+	if hight > 25: hight = 25
 
 	tabela = ajustes_tabela(tabela, variavel)
 
@@ -124,6 +125,7 @@ def grafico_facetado(banco_de_dados,
 	# hight = n_cols
 
 	if width > 25: width = 25
+	if hight > 25: hight = 25
 
 	colunas_do_cruzamento = list(tabela.columns[1:])
 
