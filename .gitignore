@@ -2,3 +2,4 @@
 tox.ini
 dashboard/funcoes/__pycache__/*
 dashboard/*.png
+.venv/*
