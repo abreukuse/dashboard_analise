@@ -132,8 +132,8 @@ if __name__ == '__main__':
 				path_plot_facetado = 'dashboard/plot_facetado.png'
 				st.header(f'{variavel} | {cruzamento}')
 
-				facet_plot_container = st.beta_container()
-				col1_facet, col2_facet, empty = st.beta_columns([1,1,5])
+				facet_plot_container = st.container()
+				col1_facet, col2_facet, empty = st.columns([1,1,5])
 
 				largura_facet_plot = col1_facet.slider(label='Largura', 
 					min_value=1, 

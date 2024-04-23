@@ -105,4 +105,4 @@ def criar_tabela(dados: pd.DataFrame,
     tabela_final = pd.concat([dataframe, tabela], axis=1).rename({0:variavel}, axis=1)
     tabela_final.index.name = variavel
 
-    return tabela_final
+    return tabela_final.drop(columns=variavel)

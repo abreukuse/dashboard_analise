@@ -34,7 +34,7 @@ def tabela_formato_longo(tabela, variavel, cruzamento):
 	return table
 
 
-@st.cache(show_spinner=False)
+@st.cache_data(show_spinner=False)
 def calcular_base(dados, cruzamento):
 	parcial = dados.groupby(cruzamento)['peso'].sum()
 	total = np.sum(parcial)
