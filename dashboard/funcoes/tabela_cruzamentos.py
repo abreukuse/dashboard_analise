@@ -56,7 +56,7 @@ def tabela_contingencia(dados: pd.DataFrame,
                 # tabela[column] = saferound(tabela[column].values*multiplicar, 0)
                 tabela[column] = np.round(tabela[column].values*multiplicar, 0)
 
-            tabela = tabela.append(tabela.sum().rename('All'))
+            tabela = pd.concat([tabela, pd.Series([tabela.sum()], index=['All'])])
             dataframes.append(tabela)
     
         # Juntar as tabela criadas
@@ -89,12 +89,12 @@ def criar_tabela(dados: pd.DataFrame,
         # porcentagem = pd.Series(saferound((contagem/total)*100, 0), index=contagem.index)
         porcentagem = pd.Series(np.round((contagem/total)*100, 0), index=contagem.index)
 
-        porcentagem = porcentagem.append(pd.Series(np.sum(porcentagem), index=pd.Index(['Total'])))
+        porcentagem = pd.concat([porcentagem, pd.Series(np.sum(porcentagem), index=pd.Index(['Total']))])
 
     else:
         # contagem = pd.Series(saferound(contagem, 0), index=contagem.index)
         contagem = pd.Series(np.round(contagem, 0), index=contagem.index)
-        contagem = contagem.append(pd.Series(np.sum(contagem), index=pd.Index(['Total'])))
+        contagem = pd.concat([contagem, pd.Series([np.sum(contagem)], index=['Total'])])
         
 
     valores = porcentagem if mostrar_porcentagem == True else contagem

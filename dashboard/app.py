@@ -14,8 +14,8 @@ st.header('Amostra dos dados')
 
 FILE = st.sidebar.file_uploader('Upload do Bando de Dados', type=['xlsx'])
 
-@st.cache(show_spinner=False)
-def load_data():
+@st.cache_data(show_spinner=False)
+def load_data(FILE):
 	if FILE is not None:
 		df = pd.read_excel(FILE, 
 							sheet_name='dados', 
@@ -25,10 +25,10 @@ def load_data():
 	else:
 		return pd.DataFrame(columns=['Faça o upload do banco de dados'])
 
-DATAFRAME = load_data()
+DATAFRAME = load_data(FILE)
 st.dataframe(DATAFRAME.head())
 
-@st.cache(show_spinner=False)
+@st.cache_resource(show_spinner=False)
 def opcoes_dropdown(df):
 	opcoes = df.select_dtypes('object').columns
 	return list(opcoes)
@@ -58,7 +58,7 @@ def tabela_cruzada(ordem_indices=[], ordem_colunas=[]):
 	if ordem_indices and ordem_colunas:
 		tabela = tabela.loc[ordem_indices + ultimo_indice, primeira_coluna + ordem_colunas]
 
-	return tabela.astype('int32')
+	return tabela#.astype('int32')
 
 
 if __name__ == '__main__':
@@ -87,7 +87,7 @@ if __name__ == '__main__':
 			
 			st.header('\n\nTabela cruzada')
 			show_table = tabela.loc[tabela.index[:-1]].copy()
-			show_table = show_table.append(pd.Series(np.sum(show_table), name='Total'))
+			show_table = pd.concat([show_table, pd.DataFrame([np.sum(show_table)], columns=show_table.columns, index=['Total'])])
 
 			st.dataframe(show_table)
 
@@ -101,8 +101,8 @@ if __name__ == '__main__':
 				path_plot_barras = 'dashboard/plot_barras.png'
 				st.header(f'{variavel}')
 
-				bar_plot_container = st.beta_container()
-				col1_bar, col2_bar, empty = st.beta_columns([1,1,5])
+				bar_plot_container = st.container()
+				col1_bar, col2_bar, empty = st.columns([1,1,5])
 
 				largura_bar_plot = col1_bar.slider(label='Largura', 
 					min_value=1, 
